@@ -1,0 +1,17 @@
+.vscode/
+*__pycache__*
+_input/*
+_output/*
+_temp/*
+
+readme.txt
+
+ai/checkpoints
+ai/taming/
+ai/models
+taming/*
+
+Dockerfile_vqgan_
+env_vai
+env_docker_vai
+env_docker_local
