@@ -133,13 +133,26 @@ if args.make_video or args.make_zoom_video:
     if not os.path.exists('steps'):
         os.mkdir('steps')
 
-# Fallback to CPU if CUDA is not found and make sure GPU video rendering is also disabled
-# NB. May not work for AMD cards?
-if not args.cuda_device == 'cpu' and not torch.cuda.is_available():
-    args.cuda_device = 'cpu'
-    args.video_fps = 0
-    print("Warning: No GPU found! Using the CPU instead. The iterations will be slow.")
-    print("Perhaps CUDA/ROCm or the right pytorch version is not properly installed?")
+## find best CUDA 
+is_cuda = torch.cuda.is_available()
+if is_cuda:
+    cDevice=torch.cuda.device_count()
+    if cDevice>0:
+        isFound=False
+        for i in range(cDevice):
+            ## take the first nvidia?
+            low_name=torch.cuda.get_device_name(i).lower()
+            if "nvidia" in low_name and isFound==False:
+                args.cuda_device="cuda:"+str(i)
+                isFound=True
+else:
+    # Fallback to CPU if CUDA is not found and make sure GPU video rendering is also disabled
+    # NB. May not work for AMD cards?
+    if not args.cuda_device == 'cpu':
+        args.cuda_device = 'cpu'
+        args.video_fps = 0
+        print("Warning: No GPU found! Using the CPU instead. The iterations will be slow.")
+        print("Perhaps CUDA/ROCm or the right pytorch version is not properly installed?")
 
 # If a video_style_dir has been, then create a list of all the images
 if args.video_style_dir:

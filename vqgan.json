@@ -4,18 +4,20 @@
     "location": "",
     "ip": "0.0.0.0",
     "port": 5101,
-    "version": "1.1.7",
+    "version": "1.1.9",
     "description": "Text to Image",
     "github": "https://github.com/nerdyrodent/VQGAN-CLIP",
     "requiresGPU": true,
     "isFree": false,
-    "default_cost": 1000,
+    "default_cost": 3000,
     "params": [{
         "in": "word",
         "out": "-p",
         "isMandatory": true,
         "type": "string",
-        "default": null,
+        "value": {
+            "default": null
+        },
         "ui": {
             "title": "Input (text and/or image)",
             "placeholder": "eg: gold coin from rome 100 BC, full size",
@@ -27,13 +29,17 @@
         "out": "-filename",
         "isMandatory": false,
         "type": "string",
-        "default": null,
-        "accept": {
-            "$max": 2048,
-            "$ext": [".png", ".jpg", ".jpeg"]
+        "value": {
+            "default": null
         },
         "ui": {
             "widget": "uiSelectPicture",
+            "filterExt": [".png", ".jpg", ".jpeg"],
+            "maxWidth": 1024,
+            "maxHeight": 1024,
+            "minWidth": 256,
+            "minHeight": 256,
+            "maxKb": 1024,
             "column": 1
         }
     }, {
@@ -41,13 +47,19 @@
         "out": "-i",
         "isMandatory": true,
         "type": "int",
-        "default": 25,
-        "freeAccess":  {"$max": 100},
+        "value": {
+            "default": 25,
+            "min": 1,            
+            "max": 200         
+        },
+        "freeAccess":  {
+            "default": 15,
+            "min": 10,            
+            "max": 15         
+        },
         "ui": {
             "title": "Step Count",
             "tooltip": "",
-            "min": 1,            
-            "max": 200,            
             "unit": "",
             "widget": "uiRangeSlider",
             "column": 1
@@ -57,13 +69,19 @@
         "out": "-se",
         "isMandatory": true,
         "type": "int",
-        "default": 20,
-        "freeAccess":  {"$max": 20},
+        "value": {
+            "default": 20,
+            "min": 0,            
+            "max": 20        
+        },
+        "freeAccess":  {
+            "default": 0,
+            "min": 0,            
+            "max": 0        
+        },
         "ui": {
             "title": "Save every",
             "tooltip": "",
-            "min": 1,            
-            "max": 20,            
             "unit": "",
             "widget": "uiRangeSlider",
             "column": 1
@@ -73,12 +91,16 @@
         "out": "-width",
         "isMandatory": true,
         "type": "int",
-        "default": 384,
-        "accept": {
-            "$in":[320, 384, 448, 512, 576, 640, 704, 768],
+        "value": {
+            "default": 384,
+            "set":[320, 384, 448, 512, 576, 640, 704, 768],
             "display":["320x320", "384x384", "448x448", "512x512", "576x576", "640x640", "704x704", "768x768"]
         },
-        "freeAccess":  {"$max": 512},
+        "freeAccess":  {
+            "default": 384,
+            "set":[320, 384, 448, 512],
+            "display":["320x320", "384x384", "448x448", "512x512"]
+        },
         "ui": {
             "title": "Output resolution",
             "widget": "uiMultiToggle",
@@ -91,9 +113,16 @@
         "out": "-height",
         "isMandatory": true,
         "type": "int",
-        "default": 384,
-        "accept": {"$in":[320, 384, 448, 512, 576, 640, 704, 768]},
-        "freeAccess":  {"$max": 512},
+        "value": {
+            "default": 384,
+            "set":[320, 384, 448, 512, 576, 640, 704, 768],
+            "display":["320x320", "384x384", "448x448", "512x512", "576x576", "640x640", "704x704", "768x768"]
+        },
+        "freeAccess":  {
+            "default": 384,
+            "set":[320, 384, 448, 512],
+            "display":["320x320", "384x384", "448x448", "512x512"]
+        },
         "ui": {
             "unit": "px"
         }
@@ -102,18 +131,24 @@
         "out": "-ckpt",
         "isMandatory": false,
         "type": "string",
-        "default": "vqgan_imagenet_f16_16384.ckpt"
+        "value": {
+            "default": "vqgan_imagenet_f16_16384.ckpt"
+        }
     }, {
         "in": "yaml",
         "out": "-conf",
         "isMandatory": false,
         "type": "string",
-        "default": "vqgan_imagenet_f16_16384.yaml"
+        "value": {
+            "default": "vqgan_imagenet_f16_16384.yaml"
+        }
     }, {
         "in": "output",
         "out": "-o",
         "isMandatory": true,
         "type": "function",
-        "default": "$output_uid.ext"
+        "value": {
+            "default": "$output_uid.ext"
+        }
     }]
 }

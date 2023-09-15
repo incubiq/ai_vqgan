@@ -10,12 +10,10 @@ RUN mkdir -p ./templates
 RUN chown -R root:root ./static
 RUN chown -R root:root ./templates
 
+# push again the base files
 COPY ./_temp/static/* ./static
 COPY ./_temp/templates/* ./templates
 COPY ./_temp/osais.json .
-
-COPY ./_temp/env_base .
-COPY ./_temp/_base.py .
 COPY ./_temp/main_fastapi.py .
 COPY ./_temp/main_flask.py .
 COPY ./_temp/main_common.py .
@@ -40,7 +38,6 @@ ENV DIR_TEMPLATE=./templates
 # AI
 COPY ./ai/runai.py ./ai/runai.py
 COPY ./vqgan.json .
-COPY ./_vqgan.py .
 
 # overload config with those default settings
 ENV ENGINE=vqgan

@@ -64,7 +64,45 @@ if not torch.cuda.is_available():
 elif get_device_properties(0).total_memory <= 2 ** 33:  # 2 ** 33 = 8,589,934,592 bytes = 8 GB
     default_image_size = 318  # <8GB VRAM
 
+## where to save the user profile?
+def fnGetUserdataPath(_username):
+    _path=os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    DEFAULT_PROFILE_DIR = os.path.join(_path, '_profile')
+    USER_PROFILE_DIR = os.path.join(DEFAULT_PROFILE_DIR, _username)
+    return {
+        "location": USER_PROFILE_DIR,
+        "voice": False,
+        "picture": True
+    }
 
+## WARMUP Data
+def getWarmupData(_id):
+    try:
+        import time
+        from werkzeug.datastructures import MultiDict
+        ts=int(time.time())
+        sample_args = MultiDict([
+            ('-u', 'test_user'),
+            ('-uid', str(ts)),
+            ('-t', _id),
+            ('-cycle', '0'),
+            ('-width', '512'),
+            ('-height', '512'),
+            ('-i', '5'),
+            ('-se', '0'),
+            ('-p', 'zombie'),
+            ('-filename', 'warmup.jpg'),
+            ('-o', 'warmup.jpg'),
+    #        ('-idir', 'D:\\Websites\\opensourceais\\backend_public\\_temp\\input'),
+    #        ('-odir', 'D:\\Websites\\opensourceais\\backend_public\\_temp\\output'),
+    #        ('-orig', 'http://192.168.1.83:3022/'),
+        ])
+        return sample_args
+    except:
+        print("Could not call warm up!\r\n")
+        return None
+    
+## run AI    
 def fnRun(_args): 
     # Create the parser
     vq_parser = argparse.ArgumentParser(description='Image generation using VQGAN+CLIP')
@@ -155,13 +193,29 @@ def fnRun(_args):
         if not os.path.exists('steps'):
             os.mkdir('steps')
 
-    # Fallback to CPU if CUDA is not found and make sure GPU video rendering is also disabled
-    # NB. May not work for AMD cards?
-    if not args.cuda_device == 'cpu' and not torch.cuda.is_available():
-        args.cuda_device = 'cpu'
-        args.video_fps = 0
-        print("Warning: No GPU found! Using the CPU instead. The iterations will be slow.")
-        print("Perhaps CUDA/ROCm or the right pytorch version is not properly installed?")
+    ## find best CUDA 
+    is_cuda = torch.cuda.is_available()
+    if is_cuda:
+        cDevice=torch.cuda.device_count()
+        if cDevice>0:
+            isFound=False
+            print ("=> found "+str(cDevice)+" GPUs:")
+            for i in range(cDevice):
+                ## take the first nvidia?
+                low_name=torch.cuda.get_device_name(i).lower()
+                print ("=> found "+low_name+" at cuda:"+str(i))
+                if "nvidia" in low_name and isFound==False:
+                    args.cuda_device="cuda:"+str(i)
+                    isFound=True
+                    print("=> Selected CUDA NVIDIA at cuda:"+str(i)) 
+    else:
+        # Fallback to CPU if CUDA is not found and make sure GPU video rendering is also disabled
+        # NB. May not work for AMD cards?
+        if not args.cuda_device == 'cpu':
+            args.cuda_device = 'cpu'
+            args.video_fps = 0
+            print("Warning: No GPU found! Using the CPU instead. The iterations will be slow.")
+            print("Perhaps CUDA/ROCm or the right pytorch version is not properly installed?")
 
     # If a video_style_dir has been, then create a list of all the images
     if args.video_style_dir:
